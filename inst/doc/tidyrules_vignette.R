@@ -1,4 +1,4 @@
-## ----warning=FALSE,echo=TRUE,message=FALSE-------------------------------
+## ----warning=FALSE,echo=TRUE,message=FALSE------------------------------------
 library("tidyrules")
 library("dplyr")
 library("C50")
@@ -15,7 +15,7 @@ tidy_rules %>%
   select(-c(rule_number,trial_number)) %>% 
   pandoc.table()
 
-## ----warning=FALSE,echo=TRUE,message=FALSE-------------------------------
+## ----warning=FALSE,echo=TRUE,message=FALSE------------------------------------
 # Example 1, filter rules based on support
 tidy_rules %>% 
   filter(support >= 48) %>% 
@@ -27,12 +27,12 @@ tidy_rules %>%
   filter(RHS == "virginica") %>% 
   select(LHS, support, confidence, lift)
 
-## ----warning=FALSE,echo=TRUE,message=FALSE-------------------------------
+## ----warning=FALSE,echo=TRUE,message=FALSE------------------------------------
 iris %>% 
   filter(eval(parse(text = tidy_rules[3,"LHS"]))) %>%  # filter using a C5 rule
   count(Species)
 
-## ----warning=FALSE,echo=TRUE,message=FALSE-------------------------------
+## ----warning=FALSE,echo=TRUE,message=FALSE------------------------------------
 # loading packages
 library("tidyrules")
 library("C50")
@@ -44,7 +44,7 @@ attrition <- as_tibble(attrition)
 
 glimpse(attrition)
 
-## ----warning=FALSE,echo=TRUE,message=FALSE-------------------------------
+## ----warning=FALSE,echo=TRUE,message=FALSE------------------------------------
 # our C5 model
 c5_att <- C5.0(Attrition ~ ., data = attrition, rules = TRUE)
 
@@ -54,26 +54,26 @@ c5_att$output %>%
                    , end = 578L) %>% 
   writeLines()
 
-## ----warning=FALSE,echo=TRUE,message=FALSE-------------------------------
+## ----warning=FALSE,echo=TRUE,message=FALSE------------------------------------
 # Extract rules to a tidy tibble
 tr_att <- tidyRules(c5_att)
 
 tr_att
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 tr_att %>% 
   head(5) %>% 
   select(LHS,RHS) %>% 
   pandoc.table(split.cells = 60)
 
-## ----warning=FALSE,echo=TRUE,message=FALSE-------------------------------
+## ----warning=FALSE,echo=TRUE,message=FALSE------------------------------------
 rules_example_1 <- tr_att %>% 
   filter(RHS == "No") %>% 
   arrange(desc(support))
 
 rules_example_1
 
-## ----warning=FALSE,echo=TRUE,message=FALSE-------------------------------
+## ----warning=FALSE,echo=TRUE,message=FALSE------------------------------------
 # filter a rule with conditions
 large_support_rule <- tr_att %>% 
   filter(RHS == "Yes") %>% 
@@ -87,7 +87,7 @@ parseable_rule <- parse(text = large_support_rule)
 attrition %>% 
   filter(eval(parseable_rule))
 
-## ----warning=FALSE,echo=TRUE,message=FALSE-------------------------------
+## ----warning=FALSE,echo=TRUE,message=FALSE------------------------------------
 library("tidyrules")
 library("dplyr")
 library("rpart")
@@ -99,11 +99,11 @@ bc_train <- BreastCancer %>%
 
 rpart_bc <- rpart(Class ~ ., data = bc_train)
 
-## ----warning=FALSE,echo=TRUE,message=FALSE-------------------------------
+## ----warning=FALSE,echo=TRUE,message=FALSE------------------------------------
 library("rpart.plot")
 prp(rpart_bc)
 
-## ----warning=FALSE,echo=TRUE,message=FALSE-------------------------------
+## ----warning=FALSE,echo=TRUE,message=FALSE------------------------------------
 # tidyrule extract
 rules_bc <- tidyRules(rpart_bc)
 
@@ -114,7 +114,7 @@ bc_train %>%
   filter(eval(parse(text = rules_bc[5,"LHS"]))) %>% 
   as_tibble()
 
-## ----warning=FALSE,echo=TRUE,message=FALSE-------------------------------
+## ----warning=FALSE,echo=TRUE,message=FALSE------------------------------------
 library("tidyrules")
 library("dplyr")
 library("Cubist")
