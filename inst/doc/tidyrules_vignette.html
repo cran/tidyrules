@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
 <meta name="author" content="Srikanth KS, Amith Kumar UR" />
 
-<meta name="date" content="2020-01-30" />
+<meta name="date" content="2020-06-04" />
 
 <title>Vignette_tidyrules</title>
 
@@ -1354,7 +1354,6 @@ code {
 }
 img {
   max-width:100%;
-  height: auto;
 }
 .tabbed-pane {
   padding-top: 12px;
@@ -1416,6 +1415,7 @@ summary {
   border: none;
   display: inline-block;
   border-radius: 4px;
+  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -1428,48 +1428,9 @@ summary {
 }
 </style>
 
-<script>
-$(document).ready(function () {
-  window.buildTabsets("TOC");
-});
-
-$(document).ready(function () {
-  $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
-  });
-});
-</script>
-
 <!-- code folding -->
 
 
-
-<script>
-$(document).ready(function ()  {
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = false;
-    options.smoothScroll = false;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <style type="text/css">
 
@@ -1483,6 +1444,12 @@ $(document).ready(function ()  {
 }
 }
 
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
 
 .toc-content {
   padding-left: 30px;
@@ -1561,10 +1528,10 @@ div.tocify {
 
 <h1 class="title toc-ignore">Vignette_tidyrules</h1>
 <h4 class="author">Srikanth KS, Amith Kumar UR</h4>
-<h4 class="date">2020-01-30</h4>
+<h4 class="date">2020-06-04</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
-The package <a href="https://cran.r-project.org/package=tidyrules"><code>tidyRules</code></a> is meant to extract rules from model objects to a <code>tibble/data.frame</code> format. Currently this package supports <code>C5.0</code>, <code>rpart</code> and <code>cubist</code> models.
+The package <a href="https://cran.r-project.org/package=tidyrules"><code>tidyRules</code></a> is meant to extract <strong>parsable</strong> rules from model objects to a <code>tibble/data.frame</code> format. Package supports the following models - <code>C5.0</code>, <code>rpart</code> and <code>cubist</code>. The output rules are parsable by R, python (pandas query) and SQL (with WHERE clause).
 </div>
 
 </div>
@@ -1641,12 +1608,12 @@ library(&quot;C50&quot;)
 library(&quot;dplyr&quot;)
 
 # attrition data load
-data(&quot;attrition&quot;, package = &quot;rsample&quot;)
+data(&quot;attrition&quot;, package = &quot;modeldata&quot;)
 attrition &lt;- as_tibble(attrition)
 
 glimpse(attrition)</code></pre>
-<pre><code>## Observations: 1,470
-## Variables: 31
+<pre><code>## Rows: 1,470
+## Columns: 31
 ## $ Age                      &lt;int&gt; 41, 49, 37, 33, 27, 32, 59, 30, 38, 36, 35, …
 ## $ Attrition                &lt;fct&gt; Yes, No, Yes, No, No, No, No, No, No, No, No…
 ## $ BusinessTravel           &lt;fct&gt; Travel_Rarely, Travel_Frequently, Travel_Rar…
@@ -1807,6 +1774,26 @@ attrition %&gt;%
 ## #   WorkLifeBalance &lt;ord&gt;, YearsAtCompany &lt;int&gt;, YearsInCurrentRole &lt;int&gt;,
 ## #   YearsSinceLastPromotion &lt;int&gt;, YearsWithCurrManager &lt;int&gt;</code></pre>
 </div>
+<div id="rules-parsable-by-python-and-sql" class="section level4">
+<h4>Rules parsable by python and SQL</h4>
+<pre class="r"><code>tr_att_python &lt;- tidyRules(c5_att, language = &quot;python&quot;)
+tr_att_sql    &lt;- tidyRules(c5_att, language = &quot;sql&quot;)
+
+head(tr_att_python$LHS)</code></pre>
+<pre><code>## [1] &quot;EnvironmentSatisfaction in [&#39;Medium&#39;, &#39;High&#39;, &#39;Very_High&#39;] and JobInvolvement in [&#39;Medium&#39;, &#39;High&#39;, &#39;Very_High&#39;] and OverTime == &#39;No&#39; and TrainingTimesLastYear &gt; 1 and WorkLifeBalance in [&#39;Better&#39;, &#39;Best&#39;]&quot;                            
+## [2] &quot;JobRole == &#39;Research_Scientist&#39; and OverTime == &#39;No&#39;&quot;                                                                                                                                                                                     
+## [3] &quot;TotalWorkingYears &gt; 2&quot;                                                                                                                                                                                                                    
+## [4] &quot;JobLevel &lt;= 1 and MonthlyIncome &lt;= 2468 and OverTime == &#39;Yes&#39; and TotalWorkingYears &gt; 2 and YearsAtCompany &lt;= 3&quot;                                                                                                                          
+## [5] &quot;DailyRate &lt;= 722 and JobLevel &lt;= 1 and MonthlyIncome &lt;= 2468 and OverTime == &#39;Yes&#39; and TotalWorkingYears &gt; 2&quot;                                                                                                                             
+## [6] &quot;EnvironmentSatisfaction in [&#39;Low&#39;, &#39;Medium&#39;] and MaritalStatus in [&#39;Divorced&#39;, &#39;Married&#39;] and NumCompaniesWorked &gt; 4 and OverTime == &#39;Yes&#39; and PerformanceRating == &#39;Excellent&#39; and RelationshipSatisfaction in [&#39;Low&#39;, &#39;Medium&#39;, &#39;High&#39;]&quot;</code></pre>
+<pre class="r"><code>head(tr_att_sql$LHS)</code></pre>
+<pre><code>## [1] &quot;EnvironmentSatisfaction IN (&#39;Medium&#39;, &#39;High&#39;, &#39;Very_High&#39;) AND JobInvolvement IN (&#39;Medium&#39;, &#39;High&#39;, &#39;Very_High&#39;) AND OverTime = &#39;No&#39; AND TrainingTimesLastYear &gt; 1 AND WorkLifeBalance IN (&#39;Better&#39;, &#39;Best&#39;)&quot;                           
+## [2] &quot;JobRole = &#39;Research_Scientist&#39; AND OverTime = &#39;No&#39;&quot;                                                                                                                                                                                     
+## [3] &quot;TotalWorkingYears &gt; 2&quot;                                                                                                                                                                                                                  
+## [4] &quot;JobLevel &lt;= 1 AND MonthlyIncome &lt;= 2468 AND OverTime = &#39;Yes&#39; AND TotalWorkingYears &gt; 2 AND YearsAtCompany &lt;= 3&quot;                                                                                                                         
+## [5] &quot;DailyRate &lt;= 722 AND JobLevel &lt;= 1 AND MonthlyIncome &lt;= 2468 AND OverTime = &#39;Yes&#39; AND TotalWorkingYears &gt; 2&quot;                                                                                                                            
+## [6] &quot;EnvironmentSatisfaction IN (&#39;Low&#39;, &#39;Medium&#39;) AND MaritalStatus IN (&#39;Divorced&#39;, &#39;Married&#39;) AND NumCompaniesWorked &gt; 4 AND OverTime = &#39;Yes&#39; AND PerformanceRating = &#39;Excellent&#39; AND RelationshipSatisfaction IN (&#39;Low&#39;, &#39;Medium&#39;, &#39;High&#39;)&quot;</code></pre>
+</div>
 </div>
 <div id="example-classification-using-rpart" class="section level3">
 <h3>Example: Classification using <code>rpart</code></h3>
@@ -1876,9 +1863,9 @@ library(&quot;Cubist&quot;)
 # ames housing data set
 ames   &lt;- AmesHousing::make_ames()
 cubist_ames &lt;- cubist(x = ames[, setdiff(colnames(ames), c(&quot;Sale_Price&quot;))],
-                          y = log10(ames[[&quot;Sale_Price&quot;]]),
-                          committees = 3
-                          )
+                      y = log10(ames[[&quot;Sale_Price&quot;]]),
+                      committees = 3
+                      )
 
 # rule extract 
 rules_ames &lt;- tidyRules(cubist_ames)
@@ -1902,7 +1889,7 @@ rules_ames</code></pre>
 </div>
 </div>
 <div id="useful-links-and-references" class="section level2">
-<h2>Useful links and References :</h2>
+<h2>Useful links and References</h2>
 <ul>
 <li>C5.0: An Informal Tutorial <a href="https://www.rulequest.com/see5-unix.html" class="uri">https://www.rulequest.com/see5-unix.html</a></li>
 <li>Recursive partitioning for classification, regression and survival trees <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2927982/" class="uri">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2927982/</a></li>
@@ -1928,6 +1915,49 @@ $(document).ready(function () {
 });
 
 
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = false;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
 </script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->

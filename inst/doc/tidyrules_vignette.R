@@ -39,7 +39,7 @@ library("C50")
 library("dplyr")
 
 # attrition data load
-data("attrition", package = "rsample")
+data("attrition", package = "modeldata")
 attrition <- as_tibble(attrition)
 
 glimpse(attrition)
@@ -88,6 +88,13 @@ attrition %>%
   filter(eval(parseable_rule))
 
 ## ----warning=FALSE,echo=TRUE,message=FALSE------------------------------------
+tr_att_python <- tidyRules(c5_att, language = "python")
+tr_att_sql    <- tidyRules(c5_att, language = "sql")
+
+head(tr_att_python$LHS)
+head(tr_att_sql$LHS)
+
+## ----warning=FALSE,echo=TRUE,message=FALSE------------------------------------
 library("tidyrules")
 library("dplyr")
 library("rpart")
@@ -121,9 +128,9 @@ library("Cubist")
 # ames housing data set
 ames   <- AmesHousing::make_ames()
 cubist_ames <- cubist(x = ames[, setdiff(colnames(ames), c("Sale_Price"))],
-                          y = log10(ames[["Sale_Price"]]),
-                          committees = 3
-                          )
+                      y = log10(ames[["Sale_Price"]]),
+                      committees = 3
+                      )
 
 # rule extract 
 rules_ames <- tidyRules(cubist_ames)
